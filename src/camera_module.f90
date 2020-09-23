@@ -2777,13 +2777,6 @@ recursive subroutine camera_compute_one_pixel(nrfreq,inu0,inu1,px,py,pdx,pdy,  &
   endif
   if(nrfreq.ne.camera_nrfreq) stop 3345
   !
-  ! For diagnostics only: write out (if requested) the position of this pixel
-  !
-  if(camera_diagnostics_subpix) then
-     write(10,30) px,py,pdx,pdy
-30   format(4(E17.10,1X))
-  endif
-  !
   ! Find the starting point and direction of this ray
   !
   call camera_set_ray(px,py,x,y,z,dirx,diry,dirz,distance)
@@ -2806,6 +2799,13 @@ recursive subroutine camera_compute_one_pixel(nrfreq,inu0,inu1,px,py,pdx,pdy,  &
   ! Call the ray-tracer 
   !
   call camera_serial_raytrace(nrfreq,inu0,inu1,x,y,z,dirx,diry,dirz,distance,celldxmin,intensity)
+  !
+  ! For diagnostics only: write out (if requested) the position of this pixel
+  !
+  if(camera_diagnostics_subpix) then
+     write(10,30) px,py,pdx,pdy,intensity(inu0:inu1,1)
+30   format(5(E17.10,1X))
+  endif
   !
   ! Increase the counter
   !
