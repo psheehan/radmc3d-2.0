@@ -51,6 +51,7 @@ program radmc3d
   !
   do_montecarlo_therm        = .false.
   do_montecarlo_mono         = .false.
+  do_montecarlo_scat         = .false.
   do_userdef_action          = .false.
   do_vstruct                 = .false.
   do_raytrace_spectrum       = .false.
@@ -923,6 +924,72 @@ program radmc3d
         !
         rt_incl_lines  = inclines_bk
      endif
+     !
+     !----------------------------------------------------------------
+     !          DO THE SINGLE-FREQ SCATTERING MONTE CARLO
+     !----------------------------------------------------------------
+     !
+     ! NOTE: This is normally automatically done within the imaging or
+     !       spectrum generating. Here we may wish to do this separately
+     !       simply to be able to get mean intensities at certain
+     !       wavelengths for use in other kinds models
+     !       (e.g. photodissociation of molecules or so). 
+     !
+     if(do_montecarlo_scat) then
+        !
+        ! A message:
+        !
+        call write_message_rad_processes()
+        !
+        ! If the dust emission is included, then make sure the dust data,
+        ! density and temperature are read. If yes, do not read again.
+        !
+        if(rt_incl_dust) then
+           call read_dustdata(1)
+           call read_dust_density(1)
+           call read_dust_temperature(1)
+        endif
+        !
+        ! If line emission is included, then make sure the line data are
+        ! read. If yes, then do not read it again.
+        !
+        if(rt_incl_lines) then
+           call read_lines_all(1)
+        endif
+        !
+        ! If gas continuum is included, then make sure the gas continuum
+        ! data are read. If yes, then do not read it again.
+        !
+        if(rt_incl_gascont) then
+           call gascont_init(1)
+        endif
+        !
+        ! Set the camera_frequencies(:) array
+        !
+        call set_camera_frequencies()
+        !
+        ! Set the mc_frequencies(:) array
+        !
+        if(allocated(mc_frequencies)) deallocate(mc_frequencies)
+        mc_nrfreq=camera_nrfreq
+        allocate(mc_frequencies(1:mc_nrfreq),STAT=ierr)
+        if(ierr.ne.0) then
+           write(stdo,*) 'ERROR: Could not allocate mc_frequencies(:) array'
+           stop
+        endif
+        mc_frequencies(:) = camera_frequencies(:)
+        !
+        ! Now call the monochromatic Monte Carlo
+        !
+        call do_monte_carlo_scattering(rt_mcparams,ierror,   &
+               resetseed=do_resetseed,scatsrc=.true.)
+        !
+        ! Write the mean intensities to a file
+        !
+        write(stdo,*) 'Writing mean intensity file...'
+        call write_scat_to_file()
+     endif
+     !
      !
      !----------------------------------------------------------------
      !          DO THE SINGLE-FREQ SCATTERING MONTE CARLO
@@ -2081,6 +2148,7 @@ program radmc3d
         !
         do_montecarlo_therm        = .false.
         do_montecarlo_mono         = .false.
+        do_montecarlo_scat         = .false.
         do_userdef_action          = .false.
         do_vstruct                 = .false.
         do_raytrace_spectrum       = .false.
@@ -2636,6 +2704,14 @@ subroutine interpet_command_line_options(gotit,fromstdi,quit)
         ! Useful for other models, e.g. chemistry
         !
         do_montecarlo_mono = .true.
+        gotit = .true.
+     elseif(buffer(1:6).eq.'mcscat') then
+        !
+        ! Do the monochromatic Monte Carlo 
+        ! This computes the local radiation field inside the model
+        ! Useful for other models, e.g. chemistry
+        !
+        do_montecarlo_scat = .true.
         gotit = .true.
      elseif(buffer(1:8).eq.'myaction') then
         !

@@ -127,6 +127,7 @@ module rtglobal_module
   logical :: do_montecarlo_mono          ! Do monochromatic Monte Carlo to
   !                                      ! find the mean intensity in the
   !                                      ! model. Useful for e.g. chemistry
+  logical :: do_montecarlo_scat          ! Do monochromatic Monte Carlo to
   logical :: do_userdef_action           ! Do the userdef action
   logical :: do_vstruct                  ! Do vertical structure
   logical :: do_raytrace_spectrum        ! Make a spectrum with the camera freq array
