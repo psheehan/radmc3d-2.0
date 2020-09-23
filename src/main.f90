@@ -2344,6 +2344,12 @@ subroutine read_radmcinp_file()
      call parse_input_integer('camera_interpol_jnu@          ',interpoljnu)
      call parse_input_double ('camera_maxdphi@               ',camera_maxdphi)
      call parse_input_integer('sources_interpol_jnu@         ',interpoljnu)
+     call parse_input_integer('camera_scatsrc_allfreq@       ',idum)
+     if(idum.eq.0) then
+         camera_scatsrc_allfreq = .false.
+     else
+         camera_scatsrc_allfreq = .true.
+     endif
 !     call parse_input_double ('lines_maxdoppler@             ',lines_maxdoppler)
      call parse_input_integer('lines_mode@                   ',lines_mode)
      call parse_input_integer('lines_autosubset@             ',iautosubset)
