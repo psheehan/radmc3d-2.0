@@ -2804,7 +2804,7 @@ recursive subroutine camera_compute_one_pixel(nrfreq,inu0,inu1,px,py,pdx,pdy,  &
   !
   if(camera_diagnostics_subpix) then
      write(10,30) px,py,pdx,pdy,intensity(inu0:inu1,1)
-30   format(*(E17.10,1X))
+30   format(*(E17.10e3,1X))
   endif
   !
   ! Increase the counter
