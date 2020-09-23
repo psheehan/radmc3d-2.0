@@ -5571,7 +5571,14 @@ else
             pc    = ct2*(ray_cart_x**2+ray_cart_y**2)-st2*ray_cart_z**2
             write(stdo,*) pa,pb/r0,pc/r0**2
             write(stdo,*) 4*pa*pc/pb**2
-            stop 1132
+            !stop 1132
+            write(stdo,*) 'Fixing by adjusting the current cell...'
+            if(r0>bxi(2,1)*oneplust) amrray_ix_next = amrray_ix_next + 1
+            if(r0<bxi(1,1)*oneminust) amrray_ix_next = amrray_ix_next - 1
+            if(theta0>bxi(2,2)+tol) amrray_iy_next = amrray_iy_next + 1
+            if(theta0<bxi(1,2)-tol) amrray_iy_next = amrray_iy_next - 1
+            if(phi0>bxi(2,3)+tol) amrray_iz_next = amrray_iz_next + 1
+            if(phi0<bxi(1,3)-tol) amrray_iz_next = amrray_iz_next - 1
          endif
       endif
    endif
